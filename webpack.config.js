@@ -1,57 +1,73 @@
-// Define this constant for easier usage
-const isProd = process.env.NODE_ENV === 'production'
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const chalk = require('chalk');
 
-const { resolve } = require('path')
-console.log(__dirname, 'dirname?');
-const config = {
-    // Include source maps in development files
-    devtool: isProd ? false : '#cheap-module-source-map',
-
-    entry: {
-        // Main entry point of our app
-        app: resolve(__dirname, '', 'src', 'index.js'),
-    },
-
-    output: {
-        // As mentioned before, built files are stored in dist
-        path: resolve(__dirname, '', 'dist'),
-
-        // In our case we serve assets directly from root
-        publicPath: '/',
-
-        // We add hash to filename to avoid caching issues
-        filename: '[name].[hash].js',
-    },
-
-    resolve: {
-        extensions: ['*', '.js'],
-        modules: [
-            resolve(__dirname, '..', 'node_modules'),
+module.exports = (env, argv) => {
+    const dev = argv.mode === 'development';
+    return ({
+  entry: { main: './src/index.js' },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'main.js'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        }
+      },
+      {
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          dev ? 'style-loader' : MiniCssExtractPlugin.loader,
+          'css-loader',
+          'sass-loader',
         ],
+      },
+    {
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: 'url-loader',
+        query: {
+            limit: 10000,
+            name: 'images/[name].[hash:7].[ext]'
+        }
     },
-
-    module: {
-        rules: [
-            {
-              test: /\.js$/,
-              loader: 'babel-loader',
-
-              // Dependencies do not require transpilation
-              exclude: /node_modules/
-            },
-        ],
+    {
+        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+            limit: 1000,
+            name: 'fonts/[name].[hash:7].[ext]'
+        }
     },
-
-    plugins: [],
-}
-
-if (!isProd) {
-    config.devServer = {
-        contentBase: resolve(__dirname, '..', 'public'),
-        hot: true,
-        publicPath: '/',
-        historyApiFallback: true,
-    }
-}
-
-module.exports = config
+    {
+        test: /\.(webm|mp4)$/,
+        loader: 'file-loader',
+        options: {
+            name: 'videos/[name].[hash:7].[ext]'
+        }
+    },
+    ]
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+        title: 'JS WEBPACK TUTORIAL',
+        template: path.resolve(__dirname, 'src/html/index.ejs'),
+    }),
+    new MiniCssExtractPlugin({
+        filename: dev ? '[name].css' : '[name].[hash].css',
+        chunkFilename: dev ? '[id].css' : '[id].[hash].css',
+      }),
+      new CleanWebpackPlugin(['dist'], {}),
+      new ProgressBarPlugin({
+        format: '  build [:bar] ' + chalk.green.bold(':percent') + ' (:elapsed seconds)',
+        clear: false
+      })
+    ],
+})};
