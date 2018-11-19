@@ -1,8 +1,8 @@
 import Navigo from 'navigo';
 import handlebars, { compile } from 'handlebars';
 import './styles/main.sass';
+
 import routes from './routes';
-import update from './helpers/update';
 
 // Partials
 const header = require('./partials/header.handlebars');
@@ -17,7 +17,7 @@ const router = new Navigo(window.location.origin, true);
 
 routes.forEach((route) => {
   router.on(route.path, () => {
-    update(route.view());
+    route.view();
   });
 });
 

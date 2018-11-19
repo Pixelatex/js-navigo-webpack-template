@@ -15,7 +15,8 @@ export default () => {
   let loading = true;
   let posts = {};
   const title = 'Firebase calls example';
-
+  // Return the compiled template to the router
+  update(compile(aboutTemplate)({ title, loading, posts }));
   // This block will run the firebase code to fetch data
   if (firebase) {
     const database = firebase.database().ref('/posts');
@@ -26,7 +27,4 @@ export default () => {
       update(compile(aboutTemplate)({ title, loading, posts }));
     });
   }
-
-  // Return the compiled template to the router
-  return compile(aboutTemplate)({ title, loading, posts });
 };

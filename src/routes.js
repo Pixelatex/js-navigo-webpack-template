@@ -1,4 +1,4 @@
-// Views
+// Pages
 import HomeView from './pages/home';
 import AboutView from './pages/about';
 import FirebaseView from './pages/firebase-example';
