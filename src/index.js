@@ -18,6 +18,7 @@ const router = new Navigo(window.location.origin, true);
 routes.forEach((route) => {
   router.on(route.path, () => {
     route.view();
+    router.updatePageLinks();
   });
 });
 
@@ -27,8 +28,5 @@ router.notFound(() => {
 });
 router.resolve();
 window.onload = () => {
-  document.onclick = (e) => {
-    e.preventDefault();
-    router.navigate(e.target.getAttribute('href'));
-  };
+  router.navigate(window.location.hash.split('/')[1]);
 };
